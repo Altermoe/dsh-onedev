@@ -1,0 +1,91 @@
+{
+  "name": "dsh-onedev",
+  "version": "0.1.0",
+  "description": "dsh-onedev plugin: an MCP server for the OneDev REST API plus a dsh Web settings tab that configures the connection from the GUI.",
+  "type": "module",
+  "license": "MIT",
+  "author": "altermoe",
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "mcp",
+    "model-context-protocol",
+    "onedev",
+    "1dev",
+    "admin",
+    "plugin"
+  ],
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/client.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "dsh-onedev-mcp": "bin/dsh-onedev-mcp.mjs"
+  },
+  "dsh": {
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-locale"
+      ],
+      "platform": "web"
+    },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "files": [
+    "dist",
+    "lib",
+    "bin",
+    "plugin",
+    "README.md",
+    "docs"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "npm run build:mcp && npm run build:plugin",
+    "build:mcp": "tsc -p tsconfig.json",
+    "build:plugin": "node scripts/build-plugin.mjs",
+    "dev": "tsx src/cli.ts",
+    "start": "node bin/dsh-onedev-mcp.mjs",
+    "setup": "node bin/dsh-onedev-mcp.mjs --setup",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck:plugin": "tsc -p plugin/tsconfig.json --noEmit",
+    "docs": "node scripts/gen-tools-doc.mjs",
+    "docs:check": "find . -path ./node_modules -prune -o -name '*.md' -print | grep -v '\\.zh\\.md$' | sed 's/\\.md$//' | while read -r base; do [ -f \"${base}.zh.md\" ] || echo \"MISSING zh: ${base}.md\"; done",
+    "test": "npm run build:mcp && node --test tests/client.test.mjs && node --test tests/storage-env.test.mjs && node --test tests/docs.test.mjs && node --test tests/tools-regression.test.mjs && node tests/smoke.mjs && node tests/http-smoke.mjs && node --test tests/auth.test.mjs && npm run build:plugin && node tests/plugin-host.spec.mjs"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "*"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@deepseek-ai/dsh-client-locale": "^0.1.2-rc.1",
+    "@deepseek-ai/dsh-client-ui-primitives": "^0.1.2-rc.1",
+    "@deepseek-ai/dsh-client-ui-renderer": "^0.1.2-rc.1",
+    "@deepseek-ai/dsh-client-ui-settings": "^0.1.2-rc.1",
+    "@deepseek-ai/dsh-client-ui-slots": "^0.1.2-rc.1",
+    "@deepseek-ai/dsh-host-webserver": "^0.1.2-rc.1",
+    "@types/node": "^26.4.1",
+    "@types/react": "~18.3.1",
+    "esbuild": "^0.21.5",
+    "react": "^18.2.0",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2"
+  }
+}

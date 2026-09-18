@@ -1,0 +1,23 @@
+# dsh-onedev bundle patch.
+# Applied when this package is mounted as a DSH profile bundle. It inserts the
+# dsh-onedev host plugin (loopback config/probe surface served to the Web GUI)
+# and attaches the dsh-onedev-mcp server through the standard @deepseek-ai MCP
+# client bridge. The server reads its credentials from the credential store
+# written by the OneDev settings tab, so no env vars are injected here.
+- insert:
+    - id: dsh-onedev
+      name: 'dsh-onedev'
+      config: {}
+
+- insert:
+    - id: dsh-onedev-mcp
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: onedev
+        transport: stdio
+        command: node
+        args:
+          - '/home/cyrene/codes/dsh-onedev/bin/dsh-onedev-mcp.mjs'
+        env: {}
+        toolCallTimeoutMs: 60000
+        failOnStartupError: false

@@ -1,0 +1,347 @@
+/*
+ * OneDev settings-section styles. Every color and surface resolves through a
+ * shared `--dsw-alias-*` token so the card follows the dsh theme (light and
+ * dark). Values mirror the Models section: soft round corners (8px inputs,
+ * 18px pill buttons, 16px card), the module fill for the editing surface, and
+ * the shared focus ring. Class names are prefixed `onedev-` to stay isolated
+ * because this sheet is injected as a scoped global style (the bundle is built
+ * with esbuild, outside the tsdown CSS-Modules pipeline).
+ */
+
+.onedev-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 720px;
+  color: var(--dsw-alias-label-primary);
+}
+
+.onedev-title {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  color: var(--dsw-alias-label-primary);
+}
+
+.onedev-intro {
+  margin: 0;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+/* List-view header: add-environment button sits top-right. */
+.onedev-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.onedev-head-spacer {
+  flex: 1;
+}
+
+/* Empty state for a fresh install. */
+.onedev-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px dashed var(--dsw-alias-border-l4);
+  border-radius: 12px;
+  padding: 18px 16px;
+}
+
+.onedev-empty-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.onedev-empty-hint {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+/* Environment card grid. */
+.onedev-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.onedev-card-item {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  border: 0.5px solid var(--dsw-alias-border-l4);
+  border-radius: 12px;
+  background: var(--dsw-alias-bg-module-platform);
+  padding: 12px 14px;
+  cursor: pointer;
+  font: inherit;
+  color: var(--dsw-alias-label-primary);
+}
+
+.onedev-card-item:hover {
+  border-color: var(--dsw-alias-border-l2);
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.onedev-card-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.onedev-card-title {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary);
+}
+
+.onedev-card-remark {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.onedev-card-sub {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.onedev-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 8px;
+  border-radius: 9px;
+  font-size: 11px;
+  line-height: 18px;
+  background: var(--dsw-alias-bg-layer-1);
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.onedev-badge-primary {
+  background: var(--dsw-alias-interactive-bg-active);
+  color: var(--dsw-alias-label-primary-foreground);
+}
+
+/* The editing surface: a filled module on the panel, matching the settings
+   selector fill. */
+.onedev-card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-radius: 12px;
+  background: var(--dsw-alias-bg-module-platform);
+  padding: 14px 16px;
+}
+
+.onedev-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.onedev-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.onedev-input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  border: 0.5px solid var(--dsw-alias-border-l4);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+  line-height: 22px;
+  background: var(--dsw-alias-bg-layer-1);
+  color: var(--dsw-alias-label-primary);
+}
+
+.onedev-input:focus {
+  outline: none;
+  border-color: var(--dsw-alias-brand-primary);
+}
+
+.onedev-input::placeholder {
+  color: var(--dsw-alias-label-dimmed);
+}
+
+select.onedev-input {
+  appearance: none;
+  padding-right: 32px;
+  /* Data-URI SVG cannot resolve CSS variables; #81858C is the caption gray
+     shared by both themes. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%2381858C' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px 12px;
+  cursor: pointer;
+}
+
+.onedev-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 520px) {
+  .onedev-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.onedev-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--dsw-alias-label-secondary);
+  cursor: pointer;
+}
+
+.onedev-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.onedev-btn,
+.onedev-btn-secondary,
+.onedev-btn-danger {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 36px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 18px;
+  corner-shape: round;
+  font: inherit;
+  font-size: 14px;
+  line-height: 22px;
+  cursor: pointer;
+}
+
+.onedev-btn {
+  background: var(--dsw-alias-button-primary-fill);
+  color: var(--dsw-alias-label-primary-foreground);
+}
+
+.onedev-btn:hover:not(:disabled) {
+  background: var(--dsw-alias-button-primary-hover);
+}
+
+.onedev-btn-secondary {
+  border: 0.5px solid var(--dsw-alias-border-l3);
+  background: transparent;
+  color: var(--dsw-alias-label-primary);
+}
+
+.onedev-btn-secondary:hover:not(:disabled) {
+  background: var(--dsw-alias-interactive-bg-hover-solid);
+}
+
+.onedev-btn-danger {
+  background: transparent;
+  color: var(--dsw-alias-state-error-primary);
+  border: 0.5px solid var(--dsw-alias-state-error-primary);
+}
+
+.onedev-btn-danger:hover:not(:disabled) {
+  background: var(--dsw-alias-interactive-bg-hover-danger);
+}
+
+.onedev-btn:disabled,
+.onedev-btn-secondary:disabled,
+.onedev-btn-danger:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.onedev-btn:focus-visible,
+.onedev-btn-secondary:focus-visible,
+.onedev-btn-danger:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--dsw-alias-border-l3);
+}
+
+.onedev-link {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  margin-left: 4px;
+  border: none;
+  border-radius: 14px;
+  corner-shape: round;
+  background: transparent;
+  color: var(--dsw-alias-label-tertiary);
+  font: inherit;
+  font-size: 12px;
+  line-height: 18px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.onedev-link:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--dsw-alias-label-secondary);
+}
+
+.onedev-store {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-dimmed);
+}
+
+.onedev-saved {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-state-success-primary);
+}
+
+.onedev-error {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.onedev-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+}
