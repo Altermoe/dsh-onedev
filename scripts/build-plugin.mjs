@@ -9,11 +9,24 @@
  * still being bundled to plain JS for plain-Node loading by the DSH Loader.
  */
 import { build } from 'esbuild'
-import { existsSync, mkdirSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { dirname, extname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+
+/**
+ * Manifest package name. It is the client-module row id DSH discovers from
+ * `dsh.client` (the Loader keys browser modules by the loader specifier), the
+ * id the bundle registers into `window.__ModuleLoader__`, and the ownership
+ * tag the module system uses for this plugin's `<style>`. Reading it here keeps
+ * all three from drifting from `package.json`.
+ */
+const PACKAGE_NAME = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).name
+if (typeof PACKAGE_NAME !== 'string' || PACKAGE_NAME === '') {
+  throw new Error('build-plugin: package.json name must be a non-empty string')
+}
+
 const BASELINE = [
   'react', 'react/jsx-runtime', 'react-dom', 'react-dom/client', '@deepseek-ai/cordis',
   '@deepseek-ai/dsh-client-store', '@deepseek-ai/dsh-client-ui-slots',
@@ -67,11 +80,13 @@ await build({
   // package builds outside the tsdown CSS-Modules pipeline, so `.css` is not a
   // module here).
   loader: { '.css': 'text' },
+  // The plugin's own identity comes from the manifest (see PACKAGE_NAME).
+  define: { __DSH_ONEDEV_ID__: JSON.stringify(PACKAGE_NAME) },
   // The DSH web assembles dynamic plugin bundles by calling the module-loader
   // handoff; the factory receives the injected `require` (loader module table)
   // and returns the package's exports. The intro declares the CJS bindings the
   // bundled body references.
-  banner: { js: 'window.__ModuleLoader__.load({ id: "dsh-onedev", factory: (require) => {\nvar module = { exports: {} }; var exports = module.exports;' },
+  banner: { js: `window.__ModuleLoader__.load({ id: ${JSON.stringify(PACKAGE_NAME)}, factory: (require) => {\nvar module = { exports: {} }; var exports = module.exports;` },
   footer: { js: 'return module.exports; } });' },
   logLevel: 'info',
 })

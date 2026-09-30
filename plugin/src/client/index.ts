@@ -33,18 +33,24 @@ declare module '@deepseek-ai/dsh-client-ui-slots' {
   }
 }
 
-/** Plugin identity. */
-export const name = 'dsh-onedev'
+/** Plugin identity (the manifest package name, injected at build time). */
+export const name = __DSH_ONEDEV_ID__
 
 /** Required services. */
 export const inject = ['slots', 'locale'] as const
 
-/** Inject the tokenized stylesheet once, guarded against a duplicate tag. */
+/**
+ * Inject the tokenized stylesheet once, guarded against a duplicate tag. The
+ * tag is pre-tagged with `data-plugin` so the client module system's
+ * materialization-time `claimStyles` sweep neither steals it for a later
+ * plugin nor leaves it behind on this plugin's disposal.
+ */
 function injectStyles(css: string): void {
   if (typeof document === 'undefined') return
   if (document.head.querySelector('style[data-dsh-onedev="true"]') !== null) return
   const tag = document.createElement('style')
   tag.setAttribute('data-dsh-onedev', 'true')
+  tag.setAttribute('data-plugin', __DSH_ONEDEV_ID__)
   tag.textContent = css
   document.head.appendChild(tag)
 }

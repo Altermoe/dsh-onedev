@@ -69,7 +69,8 @@ dsh-onedev/
 
 ## Prerequisites
 
-- **Node.js ≥ 18** (developed & tested on Node 26).
+- **Node.js `^22.19.0 || >=24.0.0`** (developed & tested on Node 26). The launcher loads the compiled ESM CLI through `require()`, which needs Node ≥ 20.19/22.12, and the plugin halves run inside DSH, whose own engine range is exactly this.
+- **DeepSeek Harness 0.2.x** (`^0.2.0-rc.2`) when installing the plugin as a DSH bundle; the standalone MCP server has no DSH dependency.
 - A **OneDev server** reachable over HTTP(S), e.g. `http://localhost:6610`.
 - **Authentication**: either a OneDev access token, **or** an account + password.
   - Token auth (`ONEDEV_TOKEN`): the token must carry permission for the operations you want the AI to perform (administrator for most admin endpoints). OneDev REST docs live at `http(s)://<server>/~help/api`; create tokens from the user menu → **Access tokens**, or via the REST API itself.
@@ -129,10 +130,11 @@ When the plugin is installed into a dsh profile as a bundle (see
 - **Client half** — a first-level **OneDev** section in the dsh Web GUI
   (`Settings`). It shows each configured environment as a **card** (slug, remark,
   URL, auth type, primary / not-configured badge) with an **Add environment**
-  button at the top-right; clicking a card opens its edit form — server URL, the
-  administrator **username/password** (or an access token), a **remark**, and the
-  extra pass-through options — with **Test**, **Save**, **Set as primary**,
-  **Delete**, **Back** and **Open OneDev** actions.
+  button at the top-right; clicking a card opens its edit form — a **Back**
+  button pinned at the panel's top-left, then the server URL, the administrator
+  **username/password** (or an access token), a **remark**, and the extra
+  pass-through options — with **Test**, **Save**, **Set as primary**,
+  **Delete** and **Open OneDev** actions.
 
 Everything you save is persisted in the multi-environment credential store, and
 the form is re-filled from it whenever the page is opened. Secrets are never

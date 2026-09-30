@@ -89,6 +89,41 @@ find . -path ./node_modules -prune -o -name '*.md' -print |
 > 便于后续迭代接续的工作笔记。本节须在 `AGENTS.md` 与 `AGENTS.zh.md` 之间保持同步；
 > 当前目标的任务清单以 `TODOS.md` / `TODOS.zh.md` 为准。
 
+### 进度（2026-09-30 会话，设置页返回按钮布局）
+
+- **环境编辑视图**：**返回**按钮从底部操作行移到面板的**左上角**（`.onedev-back`，
+  作为 flex 列的第一个子元素并设 `align-self: flex-start`），无需滚动表单即可退出当前环境的
+  编辑。底部 `onedev-link` 返回按钮已移除；**打开 OneDev** 仍保留在操作行。已同步更新
+  `README.md`/`README.zh.md`；`npm run build:plugin`、`plugin` 类型检查与 `npm test` 均通过，
+  运行中的 `dsh web`（客户端 HMR 产物监听）已下发重新构建的 `lib/client.js`
+  （通过 `/plugins/events` 的图事件核实）。
+
+### 进度（2026-09-30 会话，dsh-v0.2.0-rc.2 兼容性）
+
+- **已在真实 `dsh-v0.2.0-rc.2` 运行时上验证**（隔离的 `DSH_HOME`）：profile bundle 组合
+  （`--dump-config`）、`dsh plugin add`（兼容性门禁无告警）、隔离启动 `dsh web`（客户端图行
+  `dsh-onedev` 且 `/plugins/dsh-onedev/client.js` 正常下发、`GET /api/onedev/config` 可用、
+  成功生成 `dsh-onedev-mcp` 子进程），并用 0.2.0-rc.2 的声明对 `plugin/src` 做了完整类型检查
+  （0 错误；`settings.section` 注册即使去掉原先的 `as never` 强转也能通过）。
+- **修复项**：
+  * `package.json` 的 `files` 现在包含 `cordis.patch.yml` —— 此前它被排除在 npm 包之外，
+    从 registry 安装时整个 bundle 会被静默跳过。
+  * `cordis.patch.yml` 不再硬编码绝对启动路径：`dsh-onedev-mcp` 行通过针对启动器提供的
+    `profileContext` 的 `!!js` 表达式解析
+    `<profile>/node_modules/dsh-onedev/bin/dsh-onedev-mcp.mjs`。
+  * `engines.node` 修正为 `^22.19.0 || >=24.0.0`（启动器用 `require()` 加载 ESM CLI，
+    与 DSH 自身的引擎范围一致），并新增 `engines.dsh`。
+  * 新增 `peerDependencies["@deepseek-ai/dsh"] = "^0.2.0-rc.2"`，使 DSH 的插件兼容性门禁
+    会校验本 bundle（`0.1.x` 会被判为不兼容）。
+  * devDependencies 升级到 `@deepseek-ai/dsh-*@^0.2.0-rc.2`，使仓库自身的类型检查针对运行时
+    版本（锁文件已更新）。
+  * 注入的样式表标签现在带 `data-plugin`，因此 client-modules 在 materialize 时的
+    `claimStyles` 扫描既不会把它算作后续插件的样式，也不会在本插件卸载时泄漏。
+  * `scripts/build-plugin.mjs` 从 `package.json.name` 推导注册 id（以及客户端的
+    `name`/样式标签），使 manifest、bundle id 与模块表键不再漂移。
+- **检查**：`npm run build`、`npm test`、两个 `tsc` 类型检查、`npm run docs`、
+  `npm run docs:check` 全部通过。
+
 ### 进度（2026-09-17 会话，修复 OneDev 使用日志中 MCP 报错刷屏）
 
 - **根因 A — `environment` 泄漏进请求体（HTTP 400 `Unrecognized field "environment"`）**。

@@ -18,6 +18,13 @@ and **streamable-http** (remote) deployments.
 > every tool call, so **no `ONEDEV_*` environment variables are required** and a
 > Save takes effect without restarting dsh. Build the plugin bundle with
 > `npm run build` and restart dsh (`scripts/restart-dsh.sh`) after upgrading.
+>
+> The inserted `dsh-onedev-mcp` row resolves the launcher from the profile's own
+> `node_modules` (`!!js` evaluated against the launcher-provided
+> `profileContext`), so the patch ships no machine-specific absolute path. The
+> bundle declares `"@deepseek-ai/dsh": "^0.2.0-rc.2"` in `peerDependencies`, so
+> DSH's plugin compatibility gate reports an incompatible runtime and skips the
+> bundle on older DSH versions instead of failing at spawn time.
 
 ---
 

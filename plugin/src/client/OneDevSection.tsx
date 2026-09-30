@@ -6,9 +6,10 @@
  * and a primary/configured badge; clicking a card opens its edit view. An empty
  * state prompts to add the first environment.
  *
- * **Edit view**: the per-environment form (server URL + account/token plus the
- * direct-connection pass-through options), with Save / Test connection /
- * Set-as-primary / Delete and a Back button. A new environment also edits its
+ * **Edit view**: a Back button pinned to the panel's top-left, then the
+ * per-environment form (server URL + account/token plus the direct-connection
+ * pass-through options), with Save / Test connection / Set-as-primary / Delete
+ * and Open OneDev in the bottom action row. A new environment also edits its
  * slug; an existing one shows the (immutable) slug and a remark field.
  *
  * Secrets are never echoed back by the host, so on reopen the password/token/
@@ -319,6 +320,18 @@ export function OneDevSection(props: OneDevSectionProps): JSX.Element {
 
   return (
     <div className="onedev-section">
+      {view.kind === 'edit' && (
+        <button
+          type="button"
+          className="onedev-back"
+          disabled={busy}
+          onClick={backToList}
+        >
+          <span className="onedev-back-glyph" aria-hidden="true">←</span>
+          {t('back')}
+        </button>
+      )}
+
       <h3 className="onedev-title">{view.kind === 'list' ? t('title') : isNew ? t('newTitle') : t('editTitle')}</h3>
       <p className="onedev-intro">{t('description')}</p>
 
@@ -435,9 +448,6 @@ export function OneDevSection(props: OneDevSectionProps): JSX.Element {
             )}
             <button type="button" className="onedev-link" onClick={open}>
               {t('open')} ↗
-            </button>
-            <button type="button" className="onedev-link" disabled={busy} onClick={backToList}>
-              ← {t('back')}
             </button>
           </div>
 

@@ -15,6 +15,11 @@ Harness 的原生工具。
 > 界面（`设置 → OneDev`）中配置。MCP 服务器在每次工具调用时读取凭据存储，因此**无需任何
 > `ONEDEV_*` 环境变量**，保存后无需重启 dsh 即可生效。升级后请用 `npm run build` 构建插件
 > bundle 并重启 dsh（`scripts/restart-dsh.sh`）。
+>
+> 插入的 `dsh-onedev-mcp` 行从 profile 自身的 `node_modules` 解析启动器（用 `!!js`
+> 针对启动器提供的 `profileContext` 求值），因此补丁不含任何机器相关的绝对路径。该 bundle 在
+> `peerDependencies` 中声明了 `"@deepseek-ai/dsh": "^0.2.0-rc.2"`，因此在不兼容的旧版 DSH 上，
+> DSH 的插件兼容性门禁会给出提示并跳过该 bundle，而不是等到生成子进程时才失败。
 
 ---
 

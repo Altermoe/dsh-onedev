@@ -31,6 +31,47 @@
   color: var(--dsw-alias-label-tertiary);
 }
 
+/* Edit-view back button, pinned to the panel's very top-left; it is the first
+   child of the flex column, so `align-self` keeps it content-sized. */
+.onedev-back {
+  box-sizing: border-box;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 12px 0 8px;
+  border: 0.5px solid var(--dsw-alias-border-l3);
+  border-radius: 14px;
+  corner-shape: round;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary);
+  font: inherit;
+  font-size: 13px;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.onedev-back:hover:not(:disabled) {
+  background: var(--dsw-alias-interactive-bg-hover-solid);
+  color: var(--dsw-alias-label-primary);
+}
+
+.onedev-back:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.onedev-back:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--dsw-alias-border-l3);
+}
+
+.onedev-back-glyph {
+  font-size: 14px;
+  line-height: 20px;
+}
+
 /* List-view header: add-environment button sits top-right. */
 .onedev-head {
   display: flex;

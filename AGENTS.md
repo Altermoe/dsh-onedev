@@ -81,6 +81,49 @@ Expected output: nothing. Any `MISSING` line must be fixed before merge.
 > section in sync between `AGENTS.md` and `AGENTS.zh.md`; the authoritative
 > task list for the current goal lives in `TODOS.md` / `TODOS.zh.md`.
 
+### Progress (session 2026-09-30, settings back-button placement)
+
+- **Environment edit view**: the **Back** button moved from the bottom action
+  row to the panel's very top-left (`.onedev-back`, the first child of the flex
+  column with `align-self: flex-start`), so leaving the per-environment form is
+  reachable without scrolling the form. The bottom `onedev-link` Back button was
+  removed; **Open OneDev** stays in the action row. `README.md`/`README.zh.md`
+  updated; `npm run build:plugin`, the `plugin` typecheck and `npm test` are
+  green, and the running `dsh web` (client-HMR artifact watch) serves the
+  rebuilt `lib/client.js` (verified via the `/plugins/events` graph).
+
+### Progress (session 2026-09-30, dsh-v0.2.0-rc.2 compatibility)
+
+- **Verified against `dsh-v0.2.0-rc.2`** by loading the built plugin into a real
+  0.2.0-rc.2 runtime (isolated `DSH_HOME`): profile bundle composition
+  (`--dump-config`), `dsh plugin add` (compatibility gate clean), an isolated
+  `dsh web` boot (client graph row `dsh-onedev` + served
+  `/plugins/dsh-onedev/client.js`, live `GET /api/onedev/config`, spawned
+  `dsh-onedev-mcp` child), plus a full typecheck of `plugin/src` against the
+  0.2.0-rc.2 declarations (0 errors; the `settings.section` registration also
+  typechecks without the former `as never` cast).
+- **Fixes**:
+  * `package.json` `files` now ships `cordis.patch.yml` — it was omitted from the
+    npm tarball, so a registry install would silently skip the whole bundle.
+  * `cordis.patch.yml` no longer hardcodes an absolute launcher path: the
+    `dsh-onedev-mcp` row resolves
+    `<profile>/node_modules/dsh-onedev/bin/dsh-onedev-mcp.mjs` through a `!!js`
+    expression over the launcher-provided `profileContext`.
+  * `engines.node` corrected to `^22.19.0 || >=24.0.0` (the launcher `require()`s
+    an ESM CLI; DSH's own range is identical), and `engines.dsh` added.
+  * `peerDependencies["@deepseek-ai/dsh"] = "^0.2.0-rc.2"`, so DSH's plugin
+    compatibility gate evaluates this bundle (`0.1.x` → reported incompatible).
+  * devDependencies bumped to `@deepseek-ai/dsh-*@^0.2.0-rc.2`, so the repo's own
+    typechecks target the runtime version (lockfile updated).
+  * The injected stylesheet tag now carries `data-plugin`, so client-modules'
+    materialization-time `claimStyles` sweep neither claims it for a later plugin
+    nor leaks it on this plugin's disposal.
+  * `scripts/build-plugin.mjs` derives the registration id (and the client's
+    `name`/style tag) from `package.json.name`, so the manifest, the bundle id,
+    and the module-table key can no longer drift.
+- **Checks**: `npm run build`, `npm test`, both `tsc` typechecks, `npm run docs`,
+  `npm run docs:check` all green.
+
 ### Progress (session 2026-09-17, fix MCP error spam from the OneDev usage log)
 
 - **Root cause A — `environment` leaked into request bodies (HTTP 400 `Unrecognized

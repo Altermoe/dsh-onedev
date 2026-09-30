@@ -16,8 +16,12 @@
         serverName: onedev
         transport: stdio
         command: node
+        # The launcher is resolved from this bundle's own install location
+        # (the profile's node_modules, where pnpm links every installed bundle)
+        # instead of a machine-specific absolute path: `ctx.get('profileContext')`
+        # is the launcher-provided profile, available to every `!!js` expression.
         args:
-          - '/home/cyrene/codes/dsh-onedev/bin/dsh-onedev-mcp.mjs'
+          - !!js "(ctx.get('profileContext')?.dir ?? process.cwd()) + '/node_modules/dsh-onedev/bin/dsh-onedev-mcp.mjs'"
         env: {}
         toolCallTimeoutMs: 60000
         failOnStartupError: false
