@@ -67,7 +67,7 @@
     "typecheck:plugin": "tsc -p plugin/tsconfig.json --noEmit",
     "docs": "node scripts/gen-tools-doc.mjs",
     "docs:check": "find . -path ./node_modules -prune -o -name '*.md' -print | grep -v '\\.zh\\.md$' | sed 's/\\.md$//' | while read -r base; do [ -f \"${base}.zh.md\" ] || echo \"MISSING zh: ${base}.md\"; done",
-    "test": "npm run build:mcp && node --test tests/client.test.mjs && node --test tests/storage-env.test.mjs && node --test tests/docs.test.mjs && node --test tests/tools-regression.test.mjs && node tests/smoke.mjs && node tests/http-smoke.mjs && node --test tests/auth.test.mjs && npm run build:plugin && node tests/plugin-host.spec.mjs"
+    "test": "npm run build:mcp && node --test tests/client.test.mjs && node --test tests/storage-env.test.mjs && node --test tests/docs.test.mjs && node --test tests/tools-regression.test.mjs && node --test tests/build-log.test.mjs && node tests/smoke.mjs && node tests/http-smoke.mjs && node --test tests/auth.test.mjs && npm run build:plugin && node tests/plugin-host.spec.mjs"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "*",

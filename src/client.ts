@@ -29,6 +29,28 @@ export interface OneDevResponse<T> {
   raw: string
 }
 
+/** Options for {@link OneDevClient.getBinary}. */
+export interface BinaryOptions {
+  /** Override the `Accept` header (default: accept anything). OneDev rejects
+   * `application/octet-stream` resources with HTTP 406 when JSON is requested. */
+  accept?: string
+  /** Soft cap on the number of response bytes read (default 8 MiB). */
+  maxBytes?: number
+  /** Override the per-request timeout (ms). */
+  timeoutMs?: number
+}
+
+/** A raw (non-JSON) OneDev response body such as a streaming build log. */
+export interface BinaryResponse {
+  status: number
+  contentType: string
+  bytes: Uint8Array
+  /** The byte cap was reached before the body ended. */
+  truncated: boolean
+  /** The request timed out while the body was still streaming (partial data). */
+  timedOut: boolean
+}
+
 /** Errors thrown for network / non-2xx-class failures. */
 export class OneDevApiError extends Error {
   constructor(
@@ -177,6 +199,104 @@ export class OneDevClient {
 
   get<T>(path: string, query?: InternalOptions['query']): Promise<OneDevResponse<T>> {
     return this.request<T>('GET', path, { query })
+  }
+
+  /**
+   * GET a non-JSON resource (e.g. the octet-stream build-log stream) as raw
+   * bytes. Unlike {@link get} this does not advertise `Accept: application/json`
+   * — OneDev answers 406 for octet-stream resources when JSON is requested — and
+   * it returns the body as bytes instead of decoding it as UTF-8 text, which
+   * would corrupt a binary framing.
+   *
+   * The body is read with a soft byte cap. If the per-request timeout fires
+   * while the body is still streaming (a running build keeps its log stream
+   * open) the bytes received so far are returned with `timedOut: true` instead
+   * of throwing, so a partial log is still usable.
+   */
+  async getBinary(path: string, opts: BinaryOptions = {}): Promise<BinaryResponse> {
+    const maxBytes = opts.maxBytes ?? 8 * 1024 * 1024
+    const timeoutMs = opts.timeoutMs ?? this.timeoutMs
+    const url = new URL(`${this.baseUrl}${this.apiBase}${path}`)
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), timeoutMs)
+
+    let res: Response
+    try {
+      const authorization = this.buildAuthorization()
+      res = await fetch(url, {
+        method: 'GET',
+        headers: {
+          ...(authorization ? { Authorization: authorization } : {}),
+          Accept: opts.accept ?? '*/*',
+          ...this.extraHeaders,
+        },
+        signal: controller.signal,
+      })
+    } catch (err) {
+      const aborted = (err as Error).name === 'AbortError'
+      clearTimeout(timer)
+      throw new OneDevApiError(0, 'GET', path, {
+        message: aborted ? `request timed out after ${timeoutMs}ms` : (err as Error).message,
+      })
+    }
+
+    try {
+      if (!res.ok) {
+        const raw = await res.text().catch(() => '')
+        let body: ApiErrorBody
+        try {
+          body = JSON.parse(raw) as ApiErrorBody
+        } catch {
+          body = { message: raw || res.statusText }
+        }
+        throw new OneDevApiError(res.status, 'GET', path, body)
+      }
+
+      const chunks: Uint8Array[] = []
+      let received = 0
+      let truncated = false
+      let timedOut = false
+      const stream = res.body
+      if (stream) {
+        const reader = stream.getReader()
+        try {
+          for (;;) {
+            const { done, value } = await reader.read()
+            if (done) break
+            if (!value || value.byteLength === 0) continue
+            const room = maxBytes - received
+            if (value.byteLength > room) {
+              chunks.push(value.subarray(0, room))
+              received += room
+              truncated = true
+              await reader.cancel().catch(() => {})
+              break
+            }
+            chunks.push(value)
+            received += value.byteLength
+          }
+        } catch (err) {
+          if ((err as Error).name === 'AbortError') timedOut = true
+          else throw err
+        }
+      }
+
+      const bytes = new Uint8Array(received)
+      let offset = 0
+      for (const chunk of chunks) {
+        bytes.set(chunk, offset)
+        offset += chunk.byteLength
+      }
+      return {
+        status: res.status,
+        contentType: res.headers.get('content-type') ?? '',
+        bytes,
+        truncated,
+        timedOut,
+      }
+    } finally {
+      clearTimeout(timer)
+    }
   }
   post<T>(path: string, body?: unknown, query?: InternalOptions['query']): Promise<OneDevResponse<T>> {
     return this.request<T>('POST', path, { body, query })

@@ -12,7 +12,7 @@
 
 ## 功能概览
 
-- **含 60 个工具的 MCP 服务器**：其中 56 个为管理工具（用户、组、角色、组成员关系（含授予管理员）、项目、授权、构建代理、代理令牌、构建、全局设置、访问令牌等），另有 3 个**文档查询**工具与 1 个**环境发现**工具。
+- **含 61 个工具的 MCP 服务器**：其中 57 个为管理工具（用户、组、角色、组成员关系（含授予管理员）、项目、授权、构建代理、代理令牌、构建与构建日志、全局设置、访问令牌等），另有 3 个**文档查询**工具与 1 个**环境发现**工具。
 - **多个 OneDev 环境**：可同时配置多个 OneDev 服务器（每个环境拥有独立的地址、凭据与可选**备注**）。所有需要连接的请求都接受可选的 `environment` 标识（默认主环境），让 AI 能无歧义地指向特定服务器；`onedev_list_environments` 用于列出全部环境。
 - **OneDev 官方文档查询**：`onedev_docs_search` / `onedev_docs_read` / `onedev_docs_list` 让模型能访问位于 [docs.onedev.io](https://docs.onedev.io/) 的 OneDev 官方文档——全部页面的全文检索、可读的页面内容、以及按类目的页面列表。这些工具是**独立（standalone）**的：无需配置 OneDev 连接或凭据，插件未配置时也可使用。
 - **通用直连工具** `onedev_api_request`：当没有对应的专用封装时，可对 `ONEDEV_URL/~api/*` 发起*任意*已认证请求（OneDev REST 的全部界面仍然可用）。
@@ -52,7 +52,7 @@ dsh-onedev/
 ├─ lib/                 # 构建产物：lib/index.js（宿主）、lib/client.js（客户端）
 ├─ tests/               # 单元 + stdio 冒烟 + http 冒烟 + 宿主路由冒烟
 ├─ docs/
-│  ├─ tools.md          # 全部 60 个工具的（自动生成的）表格
+│  ├─ tools.md          # 全部 61 个工具的（自动生成的）表格
 │  ├─ onedev-api.md     # 本插件使用的 OneDev REST API 参考
 │  └─ dsh-integration.md# DeepSeek Harness 插件配置
 ├─ scripts/
@@ -175,7 +175,7 @@ npm start
 或先运行一次 `npm run setup`，之后只需 `npm start`（凭据来自存储）。
 
 可用任意 MCP stdio 客户端测试，或通过 stdin 手动进行 JSON-RPC 交互
-（`tools/list` 会返回 60 个工具）。如需可视化检查，也可以运行下方的 HTTP 变体，
+（`tools/list` 会返回 61 个工具）。如需可视化检查，也可以运行下方的 HTTP 变体，
 并用 MCP 客户端或 `curl` 指向它。
 
 ### Streamable HTTP 模式
@@ -218,7 +218,7 @@ npm start
 
 ## 工具参考
 
-全部 60 个工具及其标题见 **[docs/tools.md](docs/tools.md)**（中文版见 [docs/tools.zh.md](docs/tools.zh.md)）。部分摘录：
+全部 61 个工具及其标题见 **[docs/tools.md](docs/tools.md)**（中文版见 [docs/tools.zh.md](docs/tools.zh.md)）。部分摘录：
 
 | 域 | 示例 |
 |---|---|
@@ -229,7 +229,7 @@ npm start
 | 组与管理员 | `groups_list`, `group_get`, `group_get_id`, `group_create`, `group_update`, `group_delete`, `group_members_list`, `group_members_add`, `group_members_remove` |
 | 角色 | `roles_list`, `role_get`, `role_get_id`, `role_create`, `role_update`, `role_delete` |
 | 项目 | `projects_list`, `project_get`, `project_get_id`, `project_get_clone_url`, `project_get_setting`, `project_create`, `project_update`, `project_delete`, `project_get_user_authorizations`, `project_get_group_authorizations` |
-| CI/CD | `agents_list`, `agent_get`, `agent_tokens_list`, `agent_token_create`, `agent_token_delete`, `builds_list`, `build_get`, `build_set_description`, `build_labels` |
+| CI/CD | `agents_list`, `agent_get`, `agent_tokens_list`, `agent_token_create`, `agent_token_delete`, `builds_list`, `build_get`, `build_set_description`, `build_labels`, `build_log` |
 | 设置 | `setting_get`, `setting_update`, `access_token_create`, `access_token_delete` |
 
 > **将用户设为管理员**在 OneDev 中体现为加入内置的 `Administrators` 组：

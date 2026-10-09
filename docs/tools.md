@@ -1,6 +1,6 @@
 # dsh-onedev-mcp — tool reference
 
-Full table of the 60 MCP tools served by the plugin. When bridged
+Full table of the 61 MCP tools served by the plugin. When bridged
 through DeepSeek Harness with `serverName: onedev`, each tool is exposed under a
 server-qualified name such as `mcp__onedev__users_list`.
 
@@ -61,6 +61,7 @@ server-qualified name such as `mcp__onedev__users_list`.
 | `build_get` | Get Build |
 | `build_set_description` | Set Build Description |
 | `build_labels` | Get Build Labels |
+| `build_log` | Get Build Log |
 | `server_version` | Server Version |
 | `setting_get` | Get Global Setting |
 | `setting_update` | Update Global Setting |

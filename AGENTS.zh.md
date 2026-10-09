@@ -89,6 +89,43 @@ find . -path ./node_modules -prune -o -name '*.md' -print |
 > 便于后续迭代接续的工作笔记。本节须在 `AGENTS.md` 与 `AGENTS.zh.md` 之间保持同步；
 > 当前目标的任务清单以 `TODOS.md` / `TODOS.zh.md` 为准。
 
+### 进度（2026-10-09 会话，构建日志工具）
+
+- **上报症状**：在 `nahida` 环境上调用 `GET /builds/174/log` 失败，返回
+  `HTTP 404: HTTP 404 Not Found`。
+- **根因——该端点不存在，但插件本来也无法读取日志。** `BuildResource` 没有 `/log`
+  操作，因此 404 是 OneDev 的真实答复（用 curl 复现：`curl ~/api/builds/174/log`
+  → `404`，响应体为 `HTTP 404 Not Found`）。OneDev 从另一个资源
+  `BuildLogStreamResource` 流式输出日志，端点为
+  `GET /~api/streaming/build-logs/{buildId}`，产物为 `application/octet-stream`
+  （每帧前 4 字节大端长度前缀：负数 = 状态帧，零 = keepalive，正数 = 一段 JSON
+  `LogEntry`）。有两个插件缺口导致无法取日志：
+  * `src/client.ts` 对**所有**请求都发送 `Accept: application/json`，因此即使路径
+    正确，流式端点也会返回 `406 Not Acceptable`（已验证：`Accept: application/json`
+    → 406，`*/*` / `application/octet-stream` → 200）；`onedev_api_request` 无法覆盖该
+    请求头，且其描述声称响应是 JSON。
+  * 完全没有构建日志工具，所以模型只能猜路径。
+- **修复**：新增 **`build_log`** 工具（`src/tools/buildLog.ts`）与支持字节的
+  `OneDevClient.getBinary()`（`src/client.ts`）。`getBinary` 不再强制 JSON 的
+  `Accept`，直接返回字节体（按文本解码会破坏二进制分帧），以 8 MiB 软上限读取；当
+  每次调用超时在流中途触发时（运行中的构建会保持日志流打开），返回已收到的字节并置
+  `timedOut: true`，而不是抛错。`build_log` 以 `Accept: application/octet-stream`
+  请求，把分帧解码为
+  `{buildId,status,entryCount,returned,tail,truncated,timedOut,contentType,log}`，
+  提供 `maxEntries`（默认 500）与 `tail` 选项；其描述明确说明不存在
+  `/builds/{id}/log`，且 `id` 是构建 **id** 而非构建编号。工具数 60 → **61**。
+- **文档**：`scripts/gen-tools-doc.mjs` 的 ZH 映射新增条目并重新生成
+  `docs/tools.md`/`.zh.md`（61）；`docs/onedev-api.md`/`.zh.md` 增加
+  `/streaming/build-logs/{id}` 行与关于分帧格式 / 406 陷阱的说明；两份 README 已更新
+  （61 个工具、57 个管理工具、CI/CD 行加入 `build_log`）。
+- **测试**：新增 `tests/build-log.test.mjs`（5 个用例，mock fetch）并接入 `npm test`
+  ——断言精确路径与 `Accept: application/octet-stream`、状态/条目的解码、绝不调用
+  `/builds/{id}/log`、`tail` 选择，以及帧中途截断会报告 `truncated: true`。
+- **已验证**：`npm run build`、`npm test`（stdio + HTTP 均为 61 个工具，全部套件通过）、
+  两个 `tsc` 类型检查、`npm run docs`、`npm run docs:check` 全部通过。对 nahida 构建
+  174 的实测端到端：`build_log` 返回 `status: FAILED`、471 条日志，尾部显示真实原因
+  （`sh scripts/deploy.sh <tag>` 用法错误 → `Command exited with code 2`）。
+
 ### 进度（2026-09-30 会话，设置页返回按钮布局）
 
 - **环境编辑视图**：**返回**按钮从底部操作行移到面板的**左上角**（`.onedev-back`，

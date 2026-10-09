@@ -113,7 +113,7 @@ Base URL shape: `ONEDEV_URL + ONEDEV_API_BASE + <path>`, where `ONEDEV_API_BASE`
 > is rejected with `400 must not be null`. `project_create`/`project_update` therefore
 > send an empty `{}` for any of these keys you leave unset; pass an object to override.
 
-### CI/CD agents & builds — `AgentResource`, `AgentTokenResource`, `BuildResource`
+### CI/CD agents & builds — `AgentResource`, `AgentTokenResource`, `BuildResource`, `BuildLogStreamResource`
 | Path | Method | Used by |
 |---|---|---|
 | `/agents` | GET | `agents_list` |
@@ -125,6 +125,17 @@ Base URL shape: `ONEDEV_URL + ONEDEV_API_BASE + <path>`, where `ONEDEV_API_BASE`
 | `/builds/{id}` | GET | `build_get` |
 | `/builds/{id}/description` | POST | `build_set_description` |
 | `/builds/{id}/labels` | GET | `build_labels` |
+| `/streaming/build-logs/{id}` | GET | `build_log` |
+
+> **Build logs live on a different resource.** `BuildResource` has no `/log`
+> operation — `GET /builds/{id}/log` answers HTTP 404. The real endpoint is
+> `GET /streaming/build-logs/{id}` (`BuildLogStreamResource`), which produces
+> `application/octet-stream`: a 4-byte big-endian length prefix precedes each
+> frame (negative = status frame, zero = keepalive, positive = a JSON
+> `LogEntry`). The generic `onedev_api_request` sends `Accept: application/json`
+> and therefore gets HTTP 406 here; `build_log` requests
+> `Accept: application/octet-stream` and decodes the framing. `id` is the build
+> **id**, not the build number.
 
 ### Global settings — `SettingResource` → `/settings`; tokens — `AccessTokenResource` → `/access-tokens`
 | Path | Method | Used by |

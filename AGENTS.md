@@ -81,6 +81,49 @@ Expected output: nothing. Any `MISSING` line must be fixed before merge.
 > section in sync between `AGENTS.md` and `AGENTS.zh.md`; the authoritative
 > task list for the current goal lives in `TODOS.md` / `TODOS.zh.md`.
 
+### Progress (session 2026-10-09, build-log tool)
+
+- **Reported symptom**: a tool call `GET /builds/174/log` on the `nahida`
+  environment failed with `HTTP 404: HTTP 404 Not Found`.
+- **Root cause — the endpoint does not exist, but the plugin had no way to read
+  logs either.** `BuildResource` has no `/log` operation, so 404 was OneDev's
+  real answer (reproduced with curl: `curl ~/api/builds/174/log` → `404`, body
+  `HTTP 404 Not Found`). OneDev streams logs from a separate resource,
+  `BuildLogStreamResource` at `GET /~api/streaming/build-logs/{buildId}`, which
+  produces `application/octet-stream` (a 4-byte big-endian length prefix per
+  frame: negative = status frame, zero = keepalive, positive = a JSON
+  `LogEntry`). Two plugin gaps made log retrieval impossible:
+  * `src/client.ts` sent `Accept: application/json` on **every** request, so the
+    streaming endpoint answered `406 Not Acceptable` even at the correct path
+    (verified: `Accept: application/json` → 406, `*/*` / `application/octet-stream`
+    → 200); `onedev_api_request` could not override it, and its description
+    claimed JSON responses.
+  * There was no build-log tool at all, so the model guessed the path.
+- **Fix**: new **`build_log`** tool (`src/tools/buildLog.ts`) + a byte-capable
+  `OneDevClient.getBinary()` (`src/client.ts`). `getBinary` does not force a JSON
+  `Accept`, returns the body as bytes (text decoding would corrupt the binary
+  framing), reads with an 8 MiB soft cap, and returns the bytes received so far
+  with `timedOut: true` when the per-request timeout fires mid-stream (a running
+  build keeps the log stream open) instead of throwing. `build_log` requests
+  `Accept: application/octet-stream`, decodes the framing into
+  `{buildId,status,entryCount,returned,tail,truncated,timedOut,contentType,log}`
+  with `maxEntries` (default 500) and `tail` options, and its description spells
+  out that there is no `/builds/{id}/log` and that `id` is the build **id**, not
+  the build number. Tool count 60 → **61**.
+- **Docs**: `scripts/gen-tools-doc.mjs` ZH map entry + regenerated
+  `docs/tools.md`/`.zh.md` (61); `docs/onedev-api.md`/`.zh.md` gained the
+  `/streaming/build-logs/{id}` row and a note on the framing / 406 trap; both
+  READMEs updated (61 tools, 57 admin, `build_log` in the CI/CD row).
+- **Tests**: new `tests/build-log.test.mjs` (5 cases, mocked fetch) wired into
+  `npm test` — asserts the exact path + `Accept: application/octet-stream`,
+  decoding of status/entries, that `/builds/{id}/log` is never called, `tail`
+  selection, and that a mid-frame cut is reported as `truncated: true`.
+- **Verified**: `npm run build`, `npm test` (61 tools over stdio + HTTP, all
+  suites green), both `tsc` typechecks, `npm run docs`, `npm run docs:check`
+  clean. Live end-to-end against nahida build 174: `build_log` returns
+  `status: FAILED`, 471 entries, and the tail shows the real cause
+  (`sh scripts/deploy.sh <tag>` usage error → `Command exited with code 2`).
+
 ### Progress (session 2026-09-30, settings back-button placement)
 
 - **Environment edit view**: the **Back** button moved from the bottom action

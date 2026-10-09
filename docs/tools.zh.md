@@ -1,6 +1,6 @@
 # dsh-onedev-mcp —— 工具参考
 
-本插件提供的全部 60 个 MCP 工具。当通过 DeepSeek Harness 以
+本插件提供的全部 61 个 MCP 工具。当通过 DeepSeek Harness 以
 `serverName: onedev` 桥接时，每个工具会以服务限定名（如 `mcp__onedev__users_list`）
 暴露。工具标识符（name）与标题（title）保持英文，因为它们是稳定的 API 面；
 右侧「中文用途」列帮助理解每个工具的行为。
@@ -62,6 +62,7 @@
 | `build_get` | Get Build | 按 ID 获取单个构建 |
 | `build_set_description` | Set Build Description | 设置构建的文本描述 |
 | `build_labels` | Get Build Labels | 获取构建上附加的标签 |
+| `build_log` | Get Build Log | 获取并解码构建日志（OneDev 的 /streaming/build-logs/{id} 二进制长度前缀流；不存在 /builds/{id}/log 端点） |
 | `server_version` | Server Version | 获取所配置实例的 OneDev 服务器版本 |
 | `setting_get` | Get Global Setting | 按名称读取一个全局服务器设置 |
 | `setting_update` | Update Global Setting | 按名称替换一个全局服务器设置 |

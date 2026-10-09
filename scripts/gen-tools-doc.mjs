@@ -70,6 +70,7 @@ const ZH = {
   build_get: '按 ID 获取单个构建',
   build_set_description: '设置构建的文本描述',
   build_labels: '获取构建上附加的标签',
+  build_log: '获取并解码构建日志（OneDev 的 /streaming/build-logs/{id} 二进制长度前缀流；不存在 /builds/{id}/log 端点）',
   server_version: '获取所配置实例的 OneDev 服务器版本',
   setting_get: '按名称读取一个全局服务器设置',
   setting_update: '按名称替换一个全局服务器设置',

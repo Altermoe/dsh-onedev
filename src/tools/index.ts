@@ -11,6 +11,7 @@ import { groupTools } from './groups.js'
 import { roleTools } from './roles.js'
 import { projectTools } from './projects.js'
 import { agentTools } from './agents.js'
+import { buildLogTools } from './buildLog.js'
 import { settingTools } from './settings.js'
 
 export * from './types.js'
@@ -24,6 +25,7 @@ export const TOOLS: readonly ToolDefinition[] = [
   ...roleTools,
   ...projectTools,
   ...agentTools,
+  ...buildLogTools,
   ...settingTools,
 ]
 

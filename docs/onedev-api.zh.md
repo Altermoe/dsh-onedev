@@ -106,7 +106,7 @@ URL 的构成：`ONEDEV_URL + ONEDEV_API_BASE + <path>`，其中 `ONEDEV_API_BAS
 > `400 must not be null` 拒绝。`project_create`/`project_update` 会对你未设置的
 > 这些键自动补上空的 `{}`；如需覆盖，请传入相应的对象。
 
-### CI/CD 代理与构建 —— `AgentResource`、`AgentTokenResource`、`BuildResource`
+### CI/CD 代理与构建 —— `AgentResource`、`AgentTokenResource`、`BuildResource`、`BuildLogStreamResource`
 | 路径 | 方法 | 用于 |
 |---|---|---|
 | `/agents` | GET | `agents_list` |
@@ -118,6 +118,16 @@ URL 的构成：`ONEDEV_URL + ONEDEV_API_BASE + <path>`，其中 `ONEDEV_API_BAS
 | `/builds/{id}` | GET | `build_get` |
 | `/builds/{id}/description` | POST | `build_set_description` |
 | `/builds/{id}/labels` | GET | `build_labels` |
+| `/streaming/build-logs/{id}` | GET | `build_log` |
+
+> **构建日志位于另一个资源上。** `BuildResource` 没有 `/log` 操作——
+> `GET /builds/{id}/log` 会返回 HTTP 404。真正的端点是
+> `GET /streaming/build-logs/{id}`（`BuildLogStreamResource`），其产物为
+> `application/octet-stream`：每一帧前有一个 4 字节大端长度前缀（负数 = 状态帧，
+> 零 = keepalive，正数 = 一段 JSON `LogEntry`）。通用工具 `onedev_api_request`
+> 发送的是 `Accept: application/json`，因此在这里会得到 HTTP 406；
+> `build_log` 则以 `Accept: application/octet-stream` 请求并解码该分帧格式。
+> 其中 `id` 是构建 **id**，不是构建编号。
 
 ### 全局设置 —— `SettingResource` → `/settings`；令牌 —— `AccessTokenResource` → `/access-tokens`
 | 路径 | 方法 | 用于 |

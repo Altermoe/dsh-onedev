@@ -12,7 +12,7 @@ It ships a **standalone MCP server** (`dsh-onedev-mcp`) that connects straight t
 
 ## Feature overview
 
-- **MCP server with 60 tools**: 56 for administration (users, groups, roles, group membership incl. granting administrator, projects, authorizations, build agents, agent tokens, builds, global settings, access tokens) plus 3 **documentation-query** tools and **environment discovery** (`onedev_list_environments`).
+- **MCP server with 61 tools**: 57 for administration (users, groups, roles, group membership incl. granting administrator, projects, authorizations, build agents, agent tokens, builds and build logs, global settings, access tokens) plus 3 **documentation-query** tools and **environment discovery** (`onedev_list_environments`).
 - **Multiple OneDev environments**: configure more than one OneDev server (each with its own URL, credentials, and a free-form **remark**). Every connection-backed tool accepts an optional `environment` slug (defaults to the primary environment), so the AI can target a specific server unambiguously; `onedev_list_environments` lists them all.
 - **OneDev documentation query**: `onedev_docs_search` / `onedev_docs_read` / `onedev_docs_list` give the model access to the official OneDev docs at [docs.onedev.io](https://docs.onedev.io/) — full-text search over every page, readable page content, and a category listing. These tools are **standalone**: they need no OneDev connection or credentials and work even before the plugin is configured.
 - **Generic direct-connection tool** `onedev_api_request` — execute *any* authenticated request against `ONEDEV_URL/~api/*` when no dedicated wrapper exists (the whole OneDev REST surface stays reachable).
@@ -52,7 +52,7 @@ dsh-onedev/
 ├─ lib/                 # built plugin: lib/index.js (Host), lib/client.js (Client)
 ├─ tests/               # unit + stdio smoke + http smoke + host-route smoke
 ├─ docs/
-│  ├─ tools.md          # generated table of all 60 tools
+│  ├─ tools.md          # generated table of all 61 tools
 │  ├─ onedev-api.md     # OneDev REST API reference used by the plugin
 │  └─ dsh-integration.md# DeepSeek Harness plugin configuration
 ├─ scripts/
@@ -185,7 +185,7 @@ npm start
 Or run `npm run setup` once and then just `npm start` (credentials come from the store).
 
 Test it with any MCP stdio client, or use a manual JSON-RPC exchange over stdin
-(you'll see 60 tools listed for `tools/list`). For a quick visual check you can also
+(you'll see 61 tools listed for `tools/list`). For a quick visual check you can also
 run the HTTP variant (below) and point an MCP client or `curl` at it.
 
 ### Streamable HTTP mode
@@ -228,7 +228,7 @@ See `.env.example` for a copyable template.
 
 ## Tool reference
 
-All 60 tools, with titles, are listed in **[docs/tools.md](docs/tools.md)** (中文：[docs/tools.zh.md](docs/tools.zh.md)). Highlights:
+All 61 tools, with titles, are listed in **[docs/tools.md](docs/tools.md)** (中文：[docs/tools.zh.md](docs/tools.zh.md)). Highlights:
 
 | Domain | Examples |
 |---|---|
@@ -239,7 +239,7 @@ All 60 tools, with titles, are listed in **[docs/tools.md](docs/tools.md)** (中
 | Groups & admins | `groups_list`, `group_get`, `group_get_id`, `group_create`, `group_update`, `group_delete`, `group_members_list`, `group_members_add`, `group_members_remove` |
 | Roles | `roles_list`, `role_get`, `role_get_id`, `role_create`, `role_update`, `role_delete` |
 | Projects | `projects_list`, `project_get`, `project_get_id`, `project_get_clone_url`, `project_get_setting`, `project_create`, `project_update`, `project_delete`, `project_get_user_authorizations`, `project_get_group_authorizations` |
-| CI/CD | `agents_list`, `agent_get`, `agent_tokens_list`, `agent_token_create`, `agent_token_delete`, `builds_list`, `build_get`, `build_set_description`, `build_labels` |
+| CI/CD | `agents_list`, `agent_get`, `agent_tokens_list`, `agent_token_create`, `agent_token_delete`, `builds_list`, `build_get`, `build_set_description`, `build_labels`, `build_log` |
 | Settings | `setting_get`, `setting_update`, `access_token_create`, `access_token_delete` |
 
 > **Making a user an administrator** is modeled as membership in OneDev's built-in
