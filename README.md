@@ -136,6 +136,10 @@ When the plugin is installed into a dsh profile as a bundle (see
   pass-through options — with **Test**, **Save**, **Set as primary**,
   **Delete** and **Open OneDev** actions.
 
+![OneDev settings section: configured environments shown as cards, with an Add environment button](docs/assets/preview-setting.png)
+
+*The OneDev settings section: every configured environment appears as a card, with **Add environment** at the top-right.*
+
 Everything you save is persisted in the multi-environment credential store, and
 the form is re-filled from it whenever the page is opened. Secrets are never
 echoed back to the browser: the URL, username and other options return in full,
@@ -144,6 +148,10 @@ leave blank to keep* placeholder. **Test connection therefore works on a reopene
 page without retyping anything**: blank secret fields fall back to the targeted
 environment's stored credentials (an explicitly typed value still wins), and the
 success message tells you when the saved credentials were used.
+
+![Editing a OneDev environment: URL, credentials, remark, pass-through options and actions](docs/assets/preview-env.png)
+
+*Editing an environment: server URL, credentials, remark and the extra pass-through options, with **Test**, **Save**, **Set as primary**, **Delete** and **Open OneDev**.*
 
 Because the MCP server resolves its connection from the credential store on
 **every tool call**, a Save in the GUI takes effect immediately for subsequent
